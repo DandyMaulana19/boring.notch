@@ -93,6 +93,9 @@ extension Defaults.Keys {
     //static let openLastTabByDefault = Key<Bool>("openLastTabByDefault", default: false)
     static let showOnLockScreen = Key<Bool>("showOnLockScreen", default: false)
     static let hideFromScreenRecording = Key<Bool>("hideFromScreenRecording", default: false)
+
+    // MARK: Todo
+    static let todoItems = Key<[TodoItem]>("todoItems", default: [])
     
     // MARK: Appearance
     static let showEmojis = Key<Bool>("showEmojis", default: false)
