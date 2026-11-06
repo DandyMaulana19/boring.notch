@@ -60,18 +60,18 @@ struct ContentView: View {
         )
     }
 
-    /// Closed notch shows the next unfinished todo when no music is active.
+    /// Closed notch shows the unchecked-todo count when no music is active.
     private var showTodoLiveActivity: Bool {
         !coordinator.expandingView.show && vm.notchState == .closed
             && (!musicManager.isPlaying && musicManager.isPlayerIdle)
-            && todoManager.nextPendingNumber != nil && !vm.hideOnClosed
+            && todoManager.pendingCount > 0 && !vm.hideOnClosed
     }
 
     /// While music hides the todo number, pulse the notch border instead.
     private var showTodoBorderPulse: Bool {
         vm.notchState == .closed
             && (musicManager.isPlaying || !musicManager.isPlayerIdle)
-            && todoManager.nextPendingNumber != nil
+            && todoManager.pendingCount > 0
             && !vm.hideOnClosed
             && todoBorderPulse
     }

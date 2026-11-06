@@ -7,10 +7,12 @@ Branch: `feat/todo-notch`
 
 Add a simple todo list to Boring Notch. The user manages todos in a dedicated
 tab of the open notch. While at least one todo is unfinished and no music is
-playing, the closed notch shows the number of the first unfinished todo, and
+playing, the closed notch shows how many todos are still unchecked, and
 that number pulses gently.
 
-Example: 5 todos, numbers 1–3 checked → the closed notch shows **4**.
+Example: 5 todos, numbers 1–3 checked → the closed notch shows **2**.
+While music is playing the number is hidden and the notch border pulses
+instead (toggle: Settings → General → Todo).
 
 ## Scope
 
@@ -49,8 +51,9 @@ struct TodoItem: Codable, Identifiable, Equatable, Defaults.Serializable {
 - `toggle(_ id: UUID)` — flips `isDone`.
 - `delete(_ id: UUID)` — removes the item.
 - `move(fromOffsets: IndexSet, toOffset: Int)` — reorders (used by drag).
-- `nextPendingNumber: Int?` — 1-based position of the first item with
-  `isDone == false`; `nil` when the list is empty or every item is done.
+- `pendingCount: Int` — number of items with `isDone == false`.
+  (Revised 2026-11-06: originally `nextPendingNumber`, the position of the
+  first unfinished todo; changed at the user's request to the count.)
 
 Numbering rule: a todo's number is always its current position in the list
 (1-based). Checked todos stay in the list and keep their position. Deleting or
@@ -108,7 +111,7 @@ A `View` struct following the same layout pattern as the
 height `vm.effectiveClosedNotchHeight`.
 
 - Left: `checklist` SF Symbol, white, small.
-- Right: the number from `nextPendingNumber`, white, semibold, monospaced
+- Right: `pendingCount` (shown only when > 0), white, semibold, monospaced
   digits. It pulses continuously: opacity 1.0 ↔ 0.45 and scale 1.0 ↔ 1.12,
   ~1.2 s ease-in-out, repeating forever while visible.
 
@@ -122,7 +125,7 @@ Insert a new branch into the closed-notch `if / else if` chain (around line
 else if !coordinator.expandingView.show
      && vm.notchState == .closed
      && (!musicManager.isPlaying && musicManager.isPlayerIdle)
-     && todoManager.nextPendingNumber != nil
+     && todoManager.pendingCount > 0
      && !vm.hideOnClosed {
     TodoLiveActivity()
 }
@@ -157,7 +160,7 @@ it does for the music live activity.
 
 The project has no unit-test target, and adding one is out of scope. So:
 
-- `nextPendingNumber` is kept a small pure computation on `items` so it is
+- `pendingCount` is kept a small pure computation on `items` so it is
   easy to verify by reading.
 - Build with `xcodebuild -project boringNotch.xcodeproj -scheme boringNotch build`.
 - Manual check in the running app:

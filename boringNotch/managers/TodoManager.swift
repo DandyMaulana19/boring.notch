@@ -8,7 +8,7 @@ import Foundation
 import SwiftUI
 
 /// Owns the todo list and persists it to `Defaults[.todoItems]`.
-/// A todo's number is always its 1-based position in `items`.
+/// A todo's list number is its 1-based position in `items`.
 @MainActor
 final class TodoManager: ObservableObject {
     static let shared = TodoManager()
@@ -17,9 +17,9 @@ final class TodoManager: ObservableObject {
         didSet { Defaults[.todoItems] = items }
     }
 
-    /// 1-based position of the first unfinished todo, or `nil` if none.
-    var nextPendingNumber: Int? {
-        items.firstIndex(where: { !$0.isDone }).map { $0 + 1 }
+    /// Number of todos not yet checked; shown in the closed notch.
+    var pendingCount: Int {
+        items.filter { !$0.isDone }.count
     }
 
     private init() {

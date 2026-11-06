@@ -5,8 +5,8 @@
 
 import SwiftUI
 
-/// Closed-notch indicator: checklist icon on the left, the number of the
-/// next unfinished todo on the right, pulsing. Mirrors the layout of
+/// Closed-notch indicator: checklist icon on the left, the number of
+/// unchecked todos on the right, pulsing. Mirrors the layout of
 /// `BoringFaceAnimation()` so it fits the same chin width.
 struct TodoLiveActivity: View {
     @EnvironmentObject var vm: BoringViewModel
@@ -14,7 +14,8 @@ struct TodoLiveActivity: View {
     @State private var pulsing = false
 
     var body: some View {
-        if let number = manager.nextPendingNumber {
+        let count = manager.pendingCount
+        if count > 0 {
             let side = max(0, vm.effectiveClosedNotchHeight - 12)
             HStack {
                 Image(systemName: "checklist")
@@ -26,7 +27,7 @@ struct TodoLiveActivity: View {
                     .fill(.black)
                     .frame(width: vm.closedNotchSize.width - 20)
 
-                Text("\(number)")
+                Text("\(count)")
                     .font(.system(size: 13, weight: .semibold).monospacedDigit())
                     .foregroundStyle(.white)
                     .lineLimit(1)
