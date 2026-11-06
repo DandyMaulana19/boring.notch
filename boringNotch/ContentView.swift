@@ -37,6 +37,7 @@ struct ContentView: View {
     @Default(.useMusicVisualizer) var useMusicVisualizer
 
     @Default(.showNotHumanFace) var showNotHumanFace
+    @Default(.todoBorderPulse) var todoBorderPulse
 
     // Shared interactive spring for movement/resizing to avoid conflicting animations
     private let animationSpring = Animation.interactiveSpring(response: 0.38, dampingFraction: 0.8, blendDuration: 0)
@@ -64,6 +65,15 @@ struct ContentView: View {
         !coordinator.expandingView.show && vm.notchState == .closed
             && (!musicManager.isPlaying && musicManager.isPlayerIdle)
             && todoManager.nextPendingNumber != nil && !vm.hideOnClosed
+    }
+
+    /// While music hides the todo number, pulse the notch border instead.
+    private var showTodoBorderPulse: Bool {
+        vm.notchState == .closed
+            && (musicManager.isPlaying || !musicManager.isPlayerIdle)
+            && todoManager.nextPendingNumber != nil
+            && !vm.hideOnClosed
+            && todoBorderPulse
     }
 
     private var computedChinWidth: CGFloat {
@@ -112,6 +122,11 @@ struct ContentView: View {
                     .padding([.horizontal, .bottom], vm.notchState == .open ? 12 : 0)
                     .background(.black)
                     .clipShape(currentNotchShape)
+                    .overlay {
+                        if showTodoBorderPulse {
+                            TodoBorderPulse(shape: currentNotchShape)
+                        }
+                    }
                     .overlay(alignment: .top) {
                         Rectangle()
                             .fill(.black)

@@ -261,6 +261,8 @@ struct GeneralSettings: View {
 
             NotchBehaviour()
 
+            TodoSettings()
+
             gestureControls()
         }
         .toolbar {
@@ -344,6 +346,20 @@ struct GeneralSettings: View {
             }
         } header: {
             Text("Notch behavior")
+        }
+    }
+
+    @ViewBuilder
+    func TodoSettings() -> some View {
+        Section {
+            Defaults.Toggle(key: .todoBorderPulse) {
+                Text("Pulse notch border for unfinished todos")
+            }
+        } header: {
+            Text("Todo")
+        } footer: {
+            Text("Shown while music is playing, when the todo number is hidden.")
+                .foregroundStyle(.secondary)
         }
     }
 }

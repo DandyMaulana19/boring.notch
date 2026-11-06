@@ -96,6 +96,7 @@ extension Defaults.Keys {
 
     // MARK: Todo
     static let todoItems = Key<[TodoItem]>("todoItems", default: [])
+    static let todoBorderPulse = Key<Bool>("todoBorderPulse", default: true)
     
     // MARK: Appearance
     static let showEmojis = Key<Bool>("showEmojis", default: false)
