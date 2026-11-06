@@ -138,8 +138,7 @@ struct TodoView: View {
     private func setKeyboardAccess(_ enabled: Bool) {
         guard let panel = hostWindow as? KeyboardAcceptingPanel else { return }
         panel.acceptsKeyboard = enabled
-        if !enabled, panel.isKeyWindow {
-            panel.resignKey()
-        }
+        // Never call resignKey() directly: it desyncs AppKit's key state and
+        // stops the notch's hover tracking, so the notch would never close.
     }
 }
