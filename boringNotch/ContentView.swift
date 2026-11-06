@@ -124,7 +124,7 @@ struct ContentView: View {
                     .clipShape(currentNotchShape)
                     .overlay {
                         if showTodoBorderPulse {
-                            TodoBorderPulse(shape: currentNotchShape)
+                            TodoBorderPulse(shape: currentNotchShape, tint: musicManager.avgColor)
                         }
                     }
                     .overlay(alignment: .top) {
