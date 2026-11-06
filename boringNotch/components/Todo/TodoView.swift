@@ -9,7 +9,8 @@ struct TodoView: View {
     @ObservedObject var manager = TodoManager.shared
     @State private var draft = ""
     @State private var hoveredID: UUID?
-    @State private var holdingNotch = false
+    @State private var hold = NotchOpenHold()
+    @State private var hostWindow: NSWindow?
     @FocusState private var inputFocused: Bool
 
     var body: some View {
@@ -24,10 +25,25 @@ struct TodoView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .onChange(of: inputFocused) { _, focused in
-            focused ? holdNotchOpen() : releaseNotch()
+        .background(HostingWindowReader { hostWindow = $0 })
+        .onAppear { setKeyboardAccess(true) }
+        .onDisappear {
+            hold.end()
+            setKeyboardAccess(false)
         }
-        .onDisappear { releaseNotch() }
+        .onChange(of: hostWindow) { old, new in
+            (old as? KeyboardAcceptingPanel)?.acceptsKeyboard = false
+            setKeyboardAccess(true)
+        }
+        .onChange(of: inputFocused) { _, focused in
+            focused ? hold.begin() : hold.end()
+        }
+        // Clicking another app (panel loses key) ends editing and lets the notch close.
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignKeyNotification)) { note in
+            guard let window = note.object as? NSWindow, window === hostWindow else { return }
+            inputFocused = false
+            hold.end()
+        }
     }
 
     private var inputRow: some View {
@@ -37,6 +53,10 @@ struct TodoView: View {
             TextField("Add a todo…", text: $draft)
                 .textFieldStyle(.plain)
                 .focused($inputFocused)
+                .onExitCommand {
+                    inputFocused = false
+                    hold.end()
+                }
                 .onSubmit {
                     manager.add(draft)
                     draft = ""
@@ -113,16 +133,13 @@ struct TodoView: View {
         }
     }
 
-    // Keep the notch open while typing; begin/end must stay balanced.
-    private func holdNotchOpen() {
-        guard !holdingNotch else { return }
-        SharingStateManager.shared.beginInteraction()
-        holdingNotch = true
-    }
-
-    private func releaseNotch() {
-        guard holdingNotch else { return }
-        SharingStateManager.shared.endInteraction()
-        holdingNotch = false
+    /// The notch panel may become key only while the Todo tab is shown,
+    /// so clicking the input field gives it keyboard focus.
+    private func setKeyboardAccess(_ enabled: Bool) {
+        guard let panel = hostWindow as? KeyboardAcceptingPanel else { return }
+        panel.acceptsKeyboard = enabled
+        if !enabled, panel.isKeyWindow {
+            panel.resignKey()
+        }
     }
 }

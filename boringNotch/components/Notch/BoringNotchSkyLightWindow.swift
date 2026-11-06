@@ -31,7 +31,7 @@ extension SkyLightOperator {
     }
 }
 
-class BoringNotchSkyLightWindow: NSPanel {
+class BoringNotchSkyLightWindow: NSPanel, KeyboardAcceptingPanel {
     private var isSkyLightEnabled: Bool = false
     
     override init(
@@ -109,6 +109,9 @@ class BoringNotchSkyLightWindow: NSPanel {
     
     private var observers: Set<AnyCancellable> = []
     
-    override var canBecomeKey: Bool { false }
+    /// Set while a text input in the notch needs keyboard focus.
+    var acceptsKeyboard = false
+
+    override var canBecomeKey: Bool { acceptsKeyboard }
     override var canBecomeMain: Bool { false }
 }

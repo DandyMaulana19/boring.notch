@@ -7,7 +7,7 @@
 
 import Cocoa
 
-class BoringNotchWindow: NSPanel {
+class BoringNotchWindow: NSPanel, KeyboardAcceptingPanel {
     override init(
         contentRect: NSRect,
         styleMask: NSWindow.StyleMask,
@@ -40,8 +40,11 @@ class BoringNotchWindow: NSPanel {
         hasShadow = false
     }
     
+    /// Set while a text input in the notch needs keyboard focus.
+    var acceptsKeyboard = false
+
     override var canBecomeKey: Bool {
-        false
+        acceptsKeyboard
     }
     
     override var canBecomeMain: Bool {
